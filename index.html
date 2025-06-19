@@ -1,41 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Wallboard / Power BI Rotator</title>
+  <meta charset="UTF-8" />
+  <title>Wallboard + Power BI Rotator</title>
   <style>
-    html, body, iframe {
+    html, body {
       margin: 0;
       padding: 0;
-      border: none;
+      background: #000;
+      overflow: hidden;
+    }
+    .frame {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
+      border: none;
+    }
+    #wallboard {
+      z-index: 1;
+    }
+    #powerbi {
+      z-index: 2;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease-in-out;
+    }
+    #powerbi.visible {
+      opacity: 1;
+      pointer-events: auto;
     }
   </style>
 </head>
 <body>
+  <iframe
+    id="wallboard"
+    class="frame"
+    src="https://wallboards.lrg.co.uk/wallboard/533"
+  ></iframe>
+
+  <iframe
+    id="powerbi"
+    class="frame"
+    src="https://app.powerbi.com/reportEmbed?reportId=f2b3087d-7287-4fec-9cd6-16d2c0390de7&autoAuth=true&ctid=7879fb74-9557-4f5d-961d-4400d1ca3f61"
+  ></iframe>
+
   <script>
-    // Define target URLs
-    const wallboardURL = "https://wallboards.lrg.co.uk/wallboard/533";
-    const powerBIURL = "https://app.powerbi.com/reportEmbed?reportId=f2b3087d-7287-4fec-9cd6-16d2c0390de7&autoAuth=true&ctid=7879fb74-9557-4f5d-961d-4400d1ca3f61";
+    const powerBI = document.getElementById("powerbi");
 
-    // Determine next screen
-    const last = localStorage.getItem("lastScreen") === "1" ? 1 : 0;
-    const next = last === 0 ? 1 : 0;
-    localStorage.setItem("lastScreen", next.toString());
+    const wallboardDuration = 1 * 60 * 1000; // 2 minutes
+    const powerBIDuration = 1 * 60 * 1000;   // 1 minute
 
-    // Choose URL
-    const nextURL = next === 0 ? wallboardURL : powerBIURL;
+    function cycleScreens() {
+      // Show Power BI
+      powerBI.classList.add("visible");
 
-    // Create and insert iframe
-    const iframe = document.createElement("iframe");
-    iframe.src = nextURL;
-    document.body.appendChild(iframe);
+      setTimeout(() => {
+        // Hide Power BI
+        powerBI.classList.remove("visible");
 
-    // Redirect back to self after 60s
-    setTimeout(() => {
-      window.location.reload();
-    }, 60000);
+        setTimeout(() => {
+          cycleScreens(); // Loop
+        }, wallboardDuration);
+      }, powerBIDuration);
+    }
+
+    window.onload = () => {
+      cycleScreens();
+    };
   </script>
 </body>
 </html>
