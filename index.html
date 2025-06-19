@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Acorn</title>
+  <title>Wallboard / Power App Rotator</title>
   <style>
     html, body {
       margin: 0;
@@ -20,55 +20,66 @@
     }
     #wallboard {
       z-index: 1;
-    }
-    #powerbi {
-      z-index: 2;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.5s ease-in-out;
     }
-    #powerbi.visible {
+    #wallboard.visible {
       opacity: 1;
       pointer-events: auto;
+    }
+    #powerapp {
+      z-index: 2;
+      transition: opacity 0.5s ease-in-out;
+    }
+    #powerapp.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
+  <!-- Power App starts visible -->
+  <iframe
+    id="powerapp"
+    class="frame"
+    src="https://apps.powerapps.com/play/e/default-7879fb74-9557-4f5d-961d-4400d1ca3f61/a/0c42cece-8aef-418c-9997-044212ce14c5?tenantId=7879fb74-9557-4f5d-961d-4400d1ca3f61&source=iframe"
+  ></iframe>
+
+  <!-- Wallboard starts hidden but loads in background -->
   <iframe
     id="wallboard"
     class="frame"
     src="https://wallboards.lrg.co.uk/wallboard/533"
   ></iframe>
 
-  <iframe
-    id="powerbi"
-    class="frame"
-    src="https://apps.powerapps.com/play/e/default-7879fb74-9557-4f5d-961d-4400d1ca3f61/a/0c42cece-8aef-418c-9997-044212ce14c5?tenantId=7879fb74-9557-4f5d-961d-4400d1ca3f61&source=iframe"
-  ></iframe>
-
   <script>
-    const powerBI = document.getElementById("powerbi");
+    const wallboard = document.getElementById("wallboard");
+    const powerapp = document.getElementById("powerapp");
 
-    const wallboardDuration = 1 * 60 * 1000; // 2 minutes
-    const powerBIDuration = 1 * 60 * 1000;   // 1 minute
+    const screenDuration = 60000; // 60 seconds
 
-    function cycleScreens() {
-      // Show Power BI
-      powerBI.classList.add("visible");
+    function showWallboard() {
+      powerapp.classList.add("hidden");
+      wallboard.classList.add("visible");
 
+      // Refresh Power App while wallboard is shown
       setTimeout(() => {
-        // Hide Power BI
-        powerBI.classList.remove("visible");
+        powerapp.src = powerapp.src;
+      }, 500); // Short delay to avoid reload flash
 
-        setTimeout(() => {
-          cycleScreens(); // Loop
-        }, wallboardDuration);
-      }, powerBIDuration);
+      // After duration, return to Power App
+      setTimeout(() => {
+        wallboard.classList.remove("visible");
+        powerapp.classList.remove("hidden");
+
+        // Schedule next switch
+        setTimeout(showWallboard, screenDuration);
+      }, screenDuration);
     }
 
-    window.onload = () => {
-      cycleScreens();
-    };
+    // Start loop after first full Power App cycle
+    setTimeout(showWallboard, screenDuration);
   </script>
 </body>
 </html>
