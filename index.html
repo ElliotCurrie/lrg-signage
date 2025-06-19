@@ -1,22 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Redirecting...</title>
-  <meta http-equiv="refresh" content="0;url=https://wallboards.lrg.co.uk/wallboard/533">
-  <script>
-    window.location.href = "https://wallboards.lrg.co.uk/wallboard/533";
-  </script>
+  <meta charset="UTF-8" />
+  <title>Wallboard + Power BI Rotator</title>
   <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 100px;
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      overflow: hidden;
+    }
+    .frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      border: none;
+    }
+    #wallboard {
+      z-index: 1;
+    }
+    #powerbi {
+      z-index: 2;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease-in-out;
+    }
+    #powerbi.visible {
+      opacity: 1;
+      pointer-events: auto;
     }
   </style>
 </head>
 <body>
-  <h1>Redirecting...</h1>
-  <p>If you are not redirected, <a href="https://wallboards.lrg.co.uk/wallboard/533">click here</a>.</p>
+  <iframe
+    id="wallboard"
+    class="frame"
+    src="https://wallboards.lrg.co.uk/wallboard/533"
+  ></iframe>
+
+  <iframe
+    id="powerbi"
+    class="frame"
+    src="https://app.powerbi.com/reportEmbed?reportId=f2b3087d-7287-4fec-9cd6-16d2c0390de7&autoAuth=true&ctid=7879fb74-9557-4f5d-961d-4400d1ca3f61"
+  ></iframe>
+
+  <script>
+    const powerBI = document.getElementById("powerbi");
+
+    const wallboardDuration = 1 * 60 * 1000; // 2 minutes
+    const powerBIDuration = 1 * 60 * 1000;   // 1 minute
+
+    function cycleScreens() {
+      // Show Power BI
+      powerBI.classList.add("visible");
+
+      setTimeout(() => {
+        // Hide Power BI
+        powerBI.classList.remove("visible");
+
+        setTimeout(() => {
+          cycleScreens(); // Loop
+        }, wallboardDuration);
+      }, powerBIDuration);
+    }
+
+    window.onload = () => {
+      cycleScreens();
+    };
+  </script>
 </body>
 </html>
