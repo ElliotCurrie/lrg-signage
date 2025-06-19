@@ -18,19 +18,6 @@
       height: 100vh;
       border: none;
     }
-    #wallboard {
-      z-index: 1;
-    }
-    #powerbi {
-      z-index: 2;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease-in-out;
-    }
-    #powerbi.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
   </style>
 </head>
 <body>
@@ -40,30 +27,33 @@
     src="https://wallboards.lrg.co.uk/wallboard/533"
   ></iframe>
 
-  <iframe
-    id="powerbi"
-    class="frame"
-    src="https://app.powerbi.com/reportEmbed?reportId=f2b3087d-7287-4fec-9cd6-16d2c0390de7&autoAuth=true&ctid=7879fb74-9557-4f5d-961d-4400d1ca3f61"
-  ></iframe>
-
   <script>
-    const powerBI = document.getElementById("powerbi");
+    const wallboardDuration = 0.2 * 60 * 1000; // 2 minutes
+    const powerBIDuration = 0.2 * 60 * 1000;   // 1 minute
+    const powerBIUrl = "https://app.powerbi.com/reportEmbed?reportId=f2b3087d-7287-4fec-9cd6-16d2c0390de7&autoAuth=true&ctid=7879fb74-9557-4f5d-961d-4400d1ca3f61";
 
-    const wallboardDuration = 1 * 60 * 1000; // 2 minutes
-    const powerBIDuration = 1 * 60 * 1000;   // 1 minute
+    let powerBIFrame = null;
 
-    function cycleScreens() {
-      // Show Power BI
-      powerBI.classList.add("visible");
+    function showPowerBI() {
+      // Create Power BI iframe
+      powerBIFrame = document.createElement("iframe");
+      powerBIFrame.src = powerBIUrl;
+      powerBIFrame.className = "frame";
+      powerBIFrame.id = "powerbi";
+      document.body.appendChild(powerBIFrame);
 
+      // After delay, remove Power BI and show wallboard again
       setTimeout(() => {
-        // Hide Power BI
-        powerBI.classList.remove("visible");
-
+        powerBIFrame.remove();
+        powerBIFrame = null;
         setTimeout(() => {
-          cycleScreens(); // Loop
+          cycleScreens(); // Restart cycle
         }, wallboardDuration);
       }, powerBIDuration);
+    }
+
+    function cycleScreens() {
+      showPowerBI();
     }
 
     window.onload = () => {
