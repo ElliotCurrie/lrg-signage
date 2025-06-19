@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Wallboard / Power App Rotator</title>
+  <title>Team Wallboard Rotator</title>
   <style>
     html, body {
       margin: 0;
@@ -40,7 +40,11 @@
 </head>
 <body>
   <script>
-    const team = localStorage.getItem("selectedTeam") || "acorn";
+    const team = localStorage.getItem("selectedTeam");
+    if (!team) {
+      // No team selected → go back to menu
+      window.location.href = "index.html";
+    }
 
     const wallboardURLs = {
       acorn:   "https://wallboards.lrg.co.uk/wallboard/533",
@@ -50,14 +54,14 @@
     };
 
     const powerAppURLs = {
-      acorn:   "https://apps.powerapps.com/play/e/default-7879fb74-9557-4f5d-961d-4400d1ca3f61/a/7bacf586-8a29-43a5-af47-3facb1af933e?tenantId=7879fb74-9557-4f5d-961d-4400d1ca3f61&source=iframe",
+      acorn:   "https://apps.powerapps.com/play/e/default-7879fb74-9557-4f5d-961d-4400d1ca3f61/a/0c42cece-8aef-418c-9997-044212ce14c5?tenantId=7879fb74-9557-4f5d-961d-4400d1ca3f61&source=iframe",
       central: "https://apps.powerapps.com/play/e/default-tenant-id/a/central-app-id?tenantId=your-tenant-id&source=iframe",
       north:   "https://apps.powerapps.com/play/e/default-tenant-id/a/north-app-id?tenantId=your-tenant-id&source=iframe",
       south:   "https://apps.powerapps.com/play/e/default-tenant-id/a/south-app-id?tenantId=your-tenant-id&source=iframe"
     };
 
-    const wallboardURL = wallboardURLs[team];
-    const powerAppURL = powerAppURLs[team];
+    var wallboardURL = wallboardURLs[team];
+    var powerAppURL = powerAppURLs[team];
   </script>
 
   <iframe id="powerapp" class="frame"></iframe>
@@ -67,31 +71,7 @@
     const wallboard = document.getElementById("wallboard");
     const powerapp = document.getElementById("powerapp");
 
-    const screenDuration = 60000; // 60 seconds
+    const screenDuration = 60000;
 
     // Load sources
-    powerapp.src = powerAppURL;
-    wallboard.src = wallboardURL;
-
-    function showWallboard() {
-      powerapp.classList.add("hidden");
-      wallboard.classList.add("visible");
-
-      // Refresh Power App while wallboard is visible
-      setTimeout(() => {
-        powerapp.src = powerAppURL;
-      }, 500);
-
-      // Switch back to Power App
-      setTimeout(() => {
-        wallboard.classList.remove("visible");
-        powerapp.classList.remove("hidden");
-        setTimeout(showWallboard, screenDuration);
-      }, screenDuration);
-    }
-
-    // Start cycle
-    setTimeout(showWallboard, screenDuration);
-  </script>
-</body>
-</html>
+    powerapp
