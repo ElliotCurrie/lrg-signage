@@ -76,14 +76,14 @@
       // Show current
       frames[current].classList.add("visible");
 
-      // Refresh first Power App silently during Wallboard
+      // Refresh both Power Apps when the Wallboard is active
       if (frames[current] === board) {
         setTimeout(() => {
           app1.src = powerApp1URL;
+          app2.src = powerApp2URL;
         }, 1000);
       }
 
-      // Move to next
       current = (current + 1) % frames.length;
       setTimeout(rotate, screenDuration);
     }
