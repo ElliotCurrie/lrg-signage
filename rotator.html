@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wallboard / Power App Rotator</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      overflow: hidden;
+    }
+    .frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      border: none;
+    }
+    #wallboard {
+      z-index: 1;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease-in-out;
+    }
+    #wallboard.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #powerapp {
+      z-index: 2;
+      transition: opacity 0.5s ease-in-out;
+    }
+    #powerapp.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    const team = localStorage.getItem("selectedTeam") || "acorn";
+
+    const wallboardURLs = {
+      acorn:   "https://wallboards.lrg.co.uk/wallboard/533",
+      central: "https://wallboards.lrg.co.uk/wallboard/central-id",
+      north:   "https://wallboards.lrg.co.uk/wallboard/north-id",
+      south:   "https://wallboards.lrg.co.uk/wallboard/south-id"
+    };
+
+    const powerAppURLs = {
+      acorn:   "https://apps.powerapps.com/play/e/default-7879fb74-9557-4f5d-961d-4400d1ca3f61/a/7bacf586-8a29-43a5-af47-3facb1af933e?tenantId=7879fb74-9557-4f5d-961d-4400d1ca3f61&source=iframe",
+      central: "https://apps.powerapps.com/play/e/default-tenant-id/a/central-app-id?tenantId=your-tenant-id&source=iframe",
+      north:   "https://apps.powerapps.com/play/e/default-tenant-id/a/north-app-id?tenantId=your-tenant-id&source=iframe",
+      south:   "https://apps.powerapps.com/play/e/default-tenant-id/a/south-app-id?tenantId=your-tenant-id&source=iframe"
+    };
+
+    const wallboardURL = wallboardURLs[team];
+    const powerAppURL = powerAppURLs[team];
+  </script>
+
+  <iframe id="powerapp" class="frame"></iframe>
+  <iframe id="wallboard" class="frame"></iframe>
+
+  <script>
+    const wallboard = document.getElementById("wallboard");
+    const powerapp = document.getElementById("powerapp");
+
+    const screenDuration = 60000; // 60 seconds
+
+    // Load sources
+    powerapp.src = powerAppURL;
+    wallboard.src = wallboardURL;
+
+    function showWallboard() {
+      powerapp.classList.add("hidden");
+      wallboard.classList.add("visible");
+
+      // Refresh Power App while wallboard is visible
+      setTimeout(() => {
+        powerapp.src = powerAppURL;
+      }, 500);
+
+      // Switch back to Power App
+      setTimeout(() => {
+        wallboard.classList.remove("visible");
+        powerapp.classList.remove("hidden");
+        setTimeout(showWallboard, screenDuration);
+      }, screenDuration);
+    }
+
+    // Start cycle
+    setTimeout(showWallboard, screenDuration);
+  </script>
+</body>
+</html>
