@@ -17,34 +17,20 @@
       width: 100vw;
       height: 100vh;
       border: none;
-    }
-    #wallboard {
-      z-index: 1;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.5s ease-in-out;
     }
-    #wallboard.visible {
+    .visible {
       opacity: 1;
       pointer-events: auto;
-    }
-    #powerapp {
-      z-index: 2;
-      transition: opacity 0.5s ease-in-out;
-    }
-    #powerapp.hidden {
-      opacity: 0;
-      pointer-events: none;
     }
   </style>
 </head>
 <body>
   <script>
     const team = localStorage.getItem("selectedTeam");
-    if (!team) {
-      // No team selected → go back to menu
-      window.location.href = "index.html";
-    }
+    if (!team) window.location.href = "index.html";
 
     const wallboardURLs = {
       acorn:   "https://wallboards.lrg.co.uk/wallboard/533",
@@ -53,48 +39,56 @@
       south:   "https://wallboards.lrg.co.uk/wallboard/south-id"
     };
 
-    const powerAppURLs = {
-      acorn:   "https://apps.powerapps.com/play/e/default-7879fb74-9557-4f5d-961d-4400d1ca3f61/a/0c42cece-8aef-418c-9997-044212ce14c5?tenantId=7879fb74-9557-4f5d-961d-4400d1ca3f61&source=iframe",
+    const powerApp1URLs = {
+      acorn:   "https://apps.powerapps.com/play/e/default-7879fb74-9557-4f5d-961d-4400d1ca3f61/a/7bacf586-8a29-43a5-af47-3facb1af933e?tenantId=7879fb74-9557-4f5d-961d-4400d1ca3f61&source=iframe",
       central: "https://apps.powerapps.com/play/e/default-tenant-id/a/central-app-id?tenantId=your-tenant-id&source=iframe",
       north:   "https://apps.powerapps.com/play/e/default-tenant-id/a/north-app-id?tenantId=your-tenant-id&source=iframe",
       south:   "https://apps.powerapps.com/play/e/default-tenant-id/a/south-app-id?tenantId=your-tenant-id&source=iframe"
     };
 
-    var wallboardURL = wallboardURLs[team];
-    var powerAppURL = powerAppURLs[team];
+    const powerApp2URL = "https://apps.powerapps.com/play/e/default-7879fb74-9557-4f5d-961d-4400d1ca3f61/a/261ae689-9c1c-40ec-9eea-c1acbca593fc?tenantId=7879fb74-9557-4f5d-961d-4400d1ca3f61&source=iframe";
+
+    const wallboardURL = wallboardURLs[team];
+    const powerApp1URL = powerApp1URLs[team];
   </script>
 
-  <iframe id="powerapp" class="frame"></iframe>
+  <iframe id="powerapp1" class="frame"></iframe>
   <iframe id="wallboard" class="frame"></iframe>
+  <iframe id="powerapp2" class="frame"></iframe>
 
   <script>
-    const wallboard = document.getElementById("wallboard");
-    const powerapp = document.getElementById("powerapp");
-
     const screenDuration = 60000;
+    const app1 = document.getElementById("powerapp1");
+    const app2 = document.getElementById("powerapp2");
+    const board = document.getElementById("wallboard");
 
-    // Load sources
-    powerapp.src = powerAppURL;
-    wallboard.src = wallboardURL;
+    app1.src = powerApp1URL;
+    app2.src = powerApp2URL;
+    board.src = wallboardURL;
 
-    function showWallboard() {
-      powerapp.classList.add("hidden");
-      wallboard.classList.add("visible");
+    const frames = [app1, board, app2];
+    let current = 0;
 
-      // Refresh Power App behind the scenes
-      setTimeout(() => {
-        powerapp.src = powerAppURL;
-      }, 500);
+    function rotate() {
+      // Hide all
+      frames.forEach(f => f.classList.remove("visible"));
 
-      // Switch back
-      setTimeout(() => {
-        wallboard.classList.remove("visible");
-        powerapp.classList.remove("hidden");
-        setTimeout(showWallboard, screenDuration);
-      }, screenDuration);
+      // Show current
+      frames[current].classList.add("visible");
+
+      // Refresh first Power App silently during Wallboard
+      if (frames[current] === board) {
+        setTimeout(() => {
+          app1.src = powerApp1URL;
+        }, 1000);
+      }
+
+      // Move to next
+      current = (current + 1) % frames.length;
+      setTimeout(rotate, screenDuration);
     }
 
-    setTimeout(showWallboard, screenDuration);
+    rotate();
   </script>
 </body>
 </html>
