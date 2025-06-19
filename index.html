@@ -1,64 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Wallboard + Power BI Rotator</title>
+  <meta charset="UTF-8">
+  <title>Wallboard / Power BI Rotator</title>
   <style>
-    html, body {
+    html, body, iframe {
       margin: 0;
       padding: 0;
-      background: #000;
-      overflow: hidden;
-    }
-    .frame {
-      position: absolute;
-      top: 0;
-      left: 0;
+      border: none;
       width: 100vw;
       height: 100vh;
-      border: none;
     }
   </style>
 </head>
 <body>
-  <iframe
-    id="wallboard"
-    class="frame"
-    src="https://wallboards.lrg.co.uk/wallboard/533"
-  ></iframe>
-
   <script>
-    const wallboardDuration = 0.2 * 60 * 1000; // 2 minutes
-    const powerBIDuration = 0.2 * 60 * 1000;   // 1 minute
-    const powerBIUrl = "https://app.powerbi.com/reportEmbed?reportId=f2b3087d-7287-4fec-9cd6-16d2c0390de7&autoAuth=true&ctid=7879fb74-9557-4f5d-961d-4400d1ca3f61";
+    // Define target URLs
+    const wallboardURL = "https://wallboards.lrg.co.uk/wallboard/533";
+    const powerBIURL = "https://app.powerbi.com/reportEmbed?reportId=f2b3087d-7287-4fec-9cd6-16d2c0390de7&autoAuth=true&ctid=7879fb74-9557-4f5d-961d-4400d1ca3f61";
 
-    let powerBIFrame = null;
+    // Determine next screen
+    const last = localStorage.getItem("lastScreen") === "1" ? 1 : 0;
+    const next = last === 0 ? 1 : 0;
+    localStorage.setItem("lastScreen", next.toString());
 
-    function showPowerBI() {
-      // Create Power BI iframe
-      powerBIFrame = document.createElement("iframe");
-      powerBIFrame.src = powerBIUrl;
-      powerBIFrame.className = "frame";
-      powerBIFrame.id = "powerbi";
-      document.body.appendChild(powerBIFrame);
+    // Choose URL
+    const nextURL = next === 0 ? wallboardURL : powerBIURL;
 
-      // After delay, remove Power BI and show wallboard again
-      setTimeout(() => {
-        powerBIFrame.remove();
-        powerBIFrame = null;
-        setTimeout(() => {
-          cycleScreens(); // Restart cycle
-        }, wallboardDuration);
-      }, powerBIDuration);
-    }
+    // Create and insert iframe
+    const iframe = document.createElement("iframe");
+    iframe.src = nextURL;
+    document.body.appendChild(iframe);
 
-    function cycleScreens() {
-      showPowerBI();
-    }
-
-    window.onload = () => {
-      cycleScreens();
-    };
+    // Redirect back to self after 60s
+    setTimeout(() => {
+      window.location.reload();
+    }, 60000);
   </script>
 </body>
 </html>
