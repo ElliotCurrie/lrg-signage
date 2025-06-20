@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Team Wallboard Rotator</title>
+  <title>Wallboard Rotator</title>
   <style>
     html, body {
       margin: 0;
@@ -47,46 +47,62 @@
     };
 
     const powerApp2URL = "https://apps.powerapps.com/play/e/default-7879fb74-9557-4f5d-961d-4400d1ca3f61/a/261ae689-9c1c-40ec-9eea-c1acbca593fc?tenantId=7879fb74-9557-4f5d-961d-4400d1ca3f61&source=iframe";
-
-    const wallboardURL = wallboardURLs[team];
-    const powerApp1URL = powerApp1URLs[team];
+    const homeletURL = "https://homelet.co.uk/homelet-rental-index";
   </script>
 
   <iframe id="powerapp1" class="frame"></iframe>
   <iframe id="wallboard" class="frame"></iframe>
   <iframe id="powerapp2" class="frame"></iframe>
+  <iframe id="homelet" class="frame"></iframe>
 
   <script>
     const screenDuration = 60000;
+
     const app1 = document.getElementById("powerapp1");
-    const app2 = document.getElementById("powerapp2");
     const board = document.getElementById("wallboard");
+    const app2 = document.getElementById("powerapp2");
+    const homelet = document.getElementById("homelet");
 
-    app1.src = powerApp1URL;
+    app1.src = powerApp1URLs[team];
     app2.src = powerApp2URL;
-    board.src = wallboardURL;
+    board.src = wallboardURLs[team];
+    homelet.src = homeletURL;
 
-    const frames = [app1, board, app2];
+    const frames = [app1, board, app2, board, homelet, board];
     let current = 0;
 
     function rotate() {
-      // Hide all
       frames.forEach(f => f.classList.remove("visible"));
-
-      // Show current
       frames[current].classList.add("visible");
 
-      // Refresh both Power Apps when the Wallboard is active
       if (frames[current] === board) {
         setTimeout(() => {
-          app1.src = powerApp1URL;
+          app1.src = powerApp1URLs[team];
           app2.src = powerApp2URL;
         }, 1000);
+      }
+
+      // Always refresh HomeLet while hidden
+      if (frames[current] !== homelet) {
+        homelet.contentWindow?.location.reload();
       }
 
       current = (current + 1) % frames.length;
       setTimeout(rotate, screenDuration);
     }
+
+    // Attempt auto-scroll once HomeLet is visible
+    homelet.onload = () => {
+      homelet.contentWindow.postMessage({ scrollToSelector: '.rental-index-table' }, "*");
+    };
+
+    // Listen for scroll command (if HomeLet ever allows it — cross-origin may block)
+    window.addEventListener("message", (e) => {
+      if (e.origin.includes("homelet.co.uk") && e.data.scrollToSelector) {
+        const el = document.querySelector(e.data.scrollToSelector);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }
+    });
 
     rotate();
   </script>
